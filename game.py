@@ -13,7 +13,9 @@ class Game:
         self.gravity=0.049
         self.bird_movement=0
         self.rotated_bird=pygame.Surface((0,0))
-
+        self.pipes = []
+        self.pipe_height= [280,425,562]
+        self.speed=1
 
     def resize_images(self):
         self.bird=pygame.transform.scale(self.bird, (51,34))
@@ -26,18 +28,18 @@ class Game:
 
     def show_ground(self,screen):
         screen.blit(self.ground, (self.ground_position, 650))
-
+  
     def move_ground(self):
-        self.ground_position-=1
+        self.ground_position-=self.speed
         self.ground_position=self.ground_position%42-42
 
     def show_bird(self,screen):
         screen.blit(self.rotated_bird, self.bird_rect)
 
     def update_bird(self):
-        self.bird_movement += self.gravity
+        self.bird_movement += self.gravity*self.speed
         self.rotated_bird=self.rotate_bird()
-        self.bird_rect.centery+=self.bird_movement
+        self.bird_rect.centery+=self.bird_movement*self.speed
 
     def rotate_bird(self):
         new_bird=pygame.transform.rotozoom(self.bird, -self.bird_movement * 3, 1)
@@ -45,7 +47,32 @@ class Game:
     
     def flap(self):
         self.bird_movement=0
-        self.bird_movement-=2.5
+        self.bird_movement-=2.5*(1.1**int(self.speed))
 
+    def add_pipe(self):
+        random_pip_pos = random.choice(self.pipe_height)
+        bottom_pipe = self.pipe.get_rect(midtop = (600, random_pip_pos))
+        top_pipe =self.pipe.get_rect(midbottom = (600, random_pip_pos-211))
+        self.pipes.append(bottom_pipe)
+        self.pipes.append(top_pipe)
 
+    def move_pipes(self):
+        for pipe in self.pipes:
+            pipe.centerx -= self.speed
+            if pipe.centerx <= -40:
+                self.pipes.remove(pipe)
+
+    def show_pipe(self,screen):
+        for pipe in self.pipes:
+            if pipe.bottom>=700:
+                screen.blit(self.pipe, pipe)
+            else:
+                flip_pipe = pygame.transform.flip(self.pipe, False, True)
+                screen.blit(flip_pipe, pipe)
+    def check_collision(self):
+        for pipe in self.pipes:
+            if self.bird_rect.colliderect(pipe):
+                self.active=False
+        if self.bird_rect.top <= -100 or self.bird_rect.bottom>=650:
+            self.active=False
         

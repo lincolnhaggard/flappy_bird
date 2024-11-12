@@ -23,21 +23,28 @@ while True:
         if event.type==pygame.KEYDOWN:
             if event.key==pygame.K_SPACE and game.active:
                 game.flap()
-
+            if event.key==pygame.K_SPACE and not game.active:
+                game.restart()
         if event.type==SPAWNPIPE:
             game.add_pipe()
     
-    game.show_background(screen)
-    game.show_ground(screen)
-    game.show_pipe(screen)
     
-    game.show_pipe(screen)
-    game.show_bird(screen)
+    
     if game.active: 
         
         game.update_bird()
         game.move_ground()
         game.move_pipes()
         game.check_collision()
+        game.update_score()
+        
+        
+        game.show_background(screen)
+        game.show_pipe(screen)
+        game.show_bird(screen)
+        game.show_ground(screen)
+        game.show_score("playing",screen,(255,255,255))  
+    else:
+        game.game_over(screen, (255,255,255))
     pygame.display.update()
     clock.tick(120)
